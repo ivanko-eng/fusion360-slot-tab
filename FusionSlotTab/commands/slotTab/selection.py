@@ -30,7 +30,7 @@ def tab_edge_pre_select(args: adsk.core.SelectionEventArgs):
 
     all_inputs = active_input.commandInputs
 
-    advanced_edge_filter = adsk.core.BoolValueCommandInput.cast(all_inputs.itemById('advancedEdgeFilter'))
+    advanced_edge_filter = adsk.core.BoolValueCommandInput.cast(all_inputs.itemById('advancedFilter'))
 
     if advanced_edge_filter and advanced_edge_filter.value:
         if is_straight_edge(edge) and is_of_thickness_length(edge):

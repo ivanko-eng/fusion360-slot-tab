@@ -5,6 +5,8 @@ import os
 from ...lib import fusionAddInUtils as futil
 from ... import config
 from . import selection
+from . import tab_face_selection
+from . import tab_geometry
 
 app = adsk.core.Application.get()
 ui = app.userInterface
@@ -80,14 +82,22 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
     # https://help.autodesk.com/view/fusion360/ENU/?contextId=CommandInputs
     inputs = args.command.commandInputs
 
-    inputs.addBoolValueInput('advancedEdgeFilter', 'Advanced Edge Filter', True, '', True)
+    inputs.addBoolValueInput('advancedFilter', 'Advanced Filter', True, '', True)
 
-    tab_edge = inputs.addSelectionInput('tabEdge', 'Tab Edge', 'Select the edge where tabs should be created.')
+    #tab_edge = inputs.addSelectionInput('tabEdge', 'Tab Edge', 'Select the edge where tabs should be created.')
     
-    tab_edge.addSelectionFilter('Edges')
-    tab_edge.setSelectionLimits(1, 1)
+    #tab_edge.addSelectionFilter('Edges')
+    #tab_edge.setSelectionLimits(1, 1)
 
-    futil.add_handler(args.command.preSelect, selection.tab_edge_pre_select, local_handlers=local_handlers)
+    tab_face = inputs.addSelectionInput('tabFace', 'Tab Face', 'Select the face where tabs should be created.')
+
+    tab_face.addSelectionFilter('Faces')
+    tab_face.setSelectionLimits(1, 1)
+
+    #futil.add_handler(args.command.preSelect, selection.tab_edge_pre_select, local_handlers=local_handlers)
+
+    futil.add_handler(args.command.preSelect, tab_face_selection.tab_face_pre_select, local_handlers=local_handlers)
+    futil.add_handler(args.command.select, command_select, local_handlers=local_handlers)
 
     futil.add_handler(args.command.execute, command_execute, local_handlers=local_handlers)
     futil.add_handler(args.command.inputChanged, command_input_changed, local_handlers=local_handlers)
@@ -122,6 +132,16 @@ def get_workflow_mode(design_intent):
         return 'Tabs and Slots'
 
     return 'Unknown'
+
+def command_select(args: adsk.core.SelectionEventArgs):
+    active_input = args.activeInput
+
+    if not active_input:
+        return
+    
+    if active_input.id == 'tabFace':
+        face = adsk.fusion.BRepFace.cast(args.selection.entity)
+        tab_geometry.inspect_tab_face(face)
 
 # This event handler is called when the user clicks the OK button in the command dialog or 
 # is immediately called after the created event not command inputs were created for the dialog.
