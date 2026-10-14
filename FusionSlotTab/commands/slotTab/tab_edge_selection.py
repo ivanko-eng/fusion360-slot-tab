@@ -39,10 +39,8 @@ def tab_edge_pre_select(args: adsk.core.SelectionEventArgs):
 
 def get_native_edge(edge: adsk.fusion.BRepEdge):
     if edge.nativeObject:
-        #futil.log(f'Edge is a proxy, native object: {edge.nativeObject}')
         return edge.nativeObject
-
-    #futil.log(f'{edge} is already a native edge')
+    
     return edge
 
 # def get_edge_body(edge: adsk.fusion.BRepEdge):
